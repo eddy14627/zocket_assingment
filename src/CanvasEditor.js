@@ -5,7 +5,7 @@ class CanvasEditor {
     this.templateData = templateData;
   }
 
-  draw(captionText, ctaText, bgColor, uploadedImage) {
+  async draw(captionText, ctaText, bgColor, uploadedImage) {
     const { image_mask, urls } = this.templateData;
 
     // Clear the canvas
@@ -15,18 +15,34 @@ class CanvasEditor {
     this.canvas.style.backgroundColor = bgColor;
 
     // Draw the background pattern
-    this.drawPattern(urls.design_pattern);
+    const patternImg = new Image();
+    patternImg.src = urls.design_pattern;
+    patternImg.onload = () => {
+      this.drawPattern(patternImg);
+    };
 
     // Draw the mask
-    this.drawMask(urls.mask, image_mask);
+    const maskImg = new Image();
+    maskImg.src = urls.mask;
+    maskImg.onload = () => {
+      this.drawMask(maskImg, image_mask);
+    };
 
     // Draw the uploaded image if available
     if (uploadedImage) {
-      this.drawUploadedImage(uploadedImage, image_mask);
+      const img = new Image();
+      img.src = uploadedImage;
+      img.onload = () => {
+        this.drawUploadedImage(img, image_mask);
+      };
     }
 
     // Draw the mask stroke
-    this.drawStroke(urls.stroke, image_mask);
+    const strokeImg = new Image();
+    strokeImg.src = urls.stroke;
+    strokeImg.onload = () => {
+      this.drawStroke(strokeImg, image_mask);
+    };
 
     // Draw the caption
     this.drawText(
@@ -47,73 +63,51 @@ class CanvasEditor {
     );
   }
 
-  drawPattern(patternUrl) {
-    const patternImg = new Image();
-    patternImg.src = patternUrl;
-    patternImg.onload = () => {
-      this.ctx.drawImage(
-        patternImg,
-        0,
-        0,
-        this.canvas.width,
-        this.canvas.height
-      );
-    };
+  drawPattern(patternImg) {
+    this.ctx.drawImage(patternImg, 0, 0, this.canvas.width, this.canvas.height);
   }
 
-  drawMask(maskUrl, maskPosition) {
-    const maskImg = new Image();
-    maskImg.src = maskUrl;
-    maskImg.onload = () => {
-      this.ctx.drawImage(
-        maskImg,
-        maskPosition.x,
-        maskPosition.y,
-        maskPosition.width,
-        maskPosition.height
-      );
-    };
+  drawMask(maskImg, maskPosition) {
+    this.ctx.drawImage(
+      maskImg,
+      maskPosition.x,
+      maskPosition.y,
+      maskPosition.width,
+      maskPosition.height
+    );
   }
 
-  drawStroke(strokeUrl, maskPosition) {
-    const strokeImg = new Image();
-    strokeImg.src = strokeUrl;
-    strokeImg.onload = () => {
-      this.ctx.lineWidth = 5;
-      this.ctx.drawImage(
-        strokeImg,
-        0,
-        0,
-        maskPosition.width + 110,
-        maskPosition.height + 490
-      );
-    };
+  drawStroke(strokeImg, maskPosition) {
+    this.ctx.lineWidth = 10;
+    this.ctx.drawImage(
+      strokeImg,
+      0,
+      0,
+      maskPosition.width + 110,
+      maskPosition.height + 490
+    );
   }
 
-  drawUploadedImage(imageSrc, maskPosition) {
-    const img = new Image();
-    img.src = imageSrc;
-    img.onload = () => {
-      // Clip to the mask position
-      this.ctx.save();
-      this.ctx.beginPath();
-      this.ctx.rect(
-        maskPosition.x,
-        maskPosition.y,
-        maskPosition.width,
-        maskPosition.height
-      );
-      this.ctx.clip();
-      // Draw the image within the mask's position
-      this.ctx.drawImage(
-        img,
-        maskPosition.x,
-        maskPosition.y,
-        maskPosition.width,
-        maskPosition.height
-      );
-      this.ctx.restore();
-    };
+  drawUploadedImage(img, maskPosition) {
+    // Clip to the mask position
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.rect(
+      maskPosition.x,
+      maskPosition.y,
+      maskPosition.width,
+      maskPosition.height
+    );
+    this.ctx.clip();
+    // Draw the image within the mask's position
+    this.ctx.drawImage(
+      img,
+      maskPosition.x,
+      maskPosition.y,
+      maskPosition.width,
+      maskPosition.height
+    );
+    this.ctx.restore();
   }
 
   drawText(
