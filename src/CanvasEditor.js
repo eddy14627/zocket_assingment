@@ -25,12 +25,14 @@ class CanvasEditor {
       maskImg.src = urls.mask;
       maskImg.onload = () => {
         this.drawMask(maskImg, image_mask);
+
         // Draw the uploaded image if available
         if (uploadedImage) {
           const img = new Image();
           img.src = uploadedImage;
           img.onload = () => {
             this.drawUploadedImage(img, image_mask);
+
             // Draw the mask stroke
             const strokeImg = new Image();
             strokeImg.src = urls.stroke;

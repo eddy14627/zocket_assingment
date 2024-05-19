@@ -16,23 +16,16 @@ const CanvasComp = () => {
   const [recentColors, setRecentColors] = useState([]);
   const [uploadedImage, setUploadedImage] = useState(null);
 
-  //   useEffect(() => {
-  //     const canvas = canvasRef.current;
-  //     canvasEditorRef.current = new CanvasEditor(canvas, templateData);
-  //     // eslint-disable-next-line
-  //   }, [templateData]);
-
-  //   useEffect(() => {
-  //     if (canvasEditorRef.current)
-  //       canvasEditorRef.current.draw(caption, cta, bgColor, uploadedImage);
-  //   }, [caption, cta, bgColor, uploadedImage]);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     canvasEditorRef.current = new CanvasEditor(canvas, templateData);
+    // eslint-disable-next-line
+  }, [templateData]);
+
+  useEffect(() => {
     if (canvasEditorRef.current)
       canvasEditorRef.current.draw(caption, cta, bgColor, uploadedImage);
-  }, [caption, cta, bgColor, uploadedImage, templateData]);
+  }, [caption, cta, bgColor, uploadedImage]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -87,7 +80,7 @@ const CanvasComp = () => {
 
   return (
     <div className="flex flex-col xl:flex-row h-screen w-full items-center">
-      <div className="w-full xl:w-1/2 2xl:w-2/5 h-screen flex justify-center bg-slate-200 items-center py-20">
+      <div className="w-full xl:w-1/2 2xl:w-2/5 min-h-screen flex justify-center bg-slate-200 items-center py-20">
         <canvas
           ref={canvasRef}
           width="1080"
@@ -95,7 +88,7 @@ const CanvasComp = () => {
           style={{ height: 400, width: 400, backgroundColor: bgColor }}
         ></canvas>
       </div>
-      <div className="flex h-screen justify-center flex-col w-full md:w-4/5 xl:w-1/2 2xl:w-3/5 items-center py-14 px-14 sm:px-20 2xl:px-48 gap-10">
+      <div className="flex h-screen justify-center xl:justify-start flex-col w-full md:w-4/5 xl:w-1/2 2xl:w-3/5 items-center py-14 px-14 sm:px-20 2xl:px-48 gap-10">
         <div className="flex flex-col items-center">
           <p className="font-semibold text-xl">Ad Customization</p>
           <p className="text-gray-400 text-center">
