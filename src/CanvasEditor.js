@@ -19,29 +19,27 @@ class CanvasEditor {
     patternImg.src = urls.design_pattern;
     patternImg.onload = () => {
       this.drawPattern(patternImg);
-    };
 
-    // Draw the mask
-    const maskImg = new Image();
-    maskImg.src = urls.mask;
-    maskImg.onload = () => {
-      this.drawMask(maskImg, image_mask);
-    };
-
-    // Draw the uploaded image if available
-    if (uploadedImage) {
-      const img = new Image();
-      img.src = uploadedImage;
-      img.onload = () => {
-        this.drawUploadedImage(img, image_mask);
+      // Draw the mask
+      const maskImg = new Image();
+      maskImg.src = urls.mask;
+      maskImg.onload = () => {
+        this.drawMask(maskImg, image_mask);
+        // Draw the uploaded image if available
+        if (uploadedImage) {
+          const img = new Image();
+          img.src = uploadedImage;
+          img.onload = () => {
+            this.drawUploadedImage(img, image_mask);
+            // Draw the mask stroke
+            const strokeImg = new Image();
+            strokeImg.src = urls.stroke;
+            strokeImg.onload = () => {
+              this.drawStroke(strokeImg, image_mask);
+            };
+          };
+        }
       };
-    }
-
-    // Draw the mask stroke
-    const strokeImg = new Image();
-    strokeImg.src = urls.stroke;
-    strokeImg.onload = () => {
-      this.drawStroke(strokeImg, image_mask);
     };
 
     // Draw the caption
