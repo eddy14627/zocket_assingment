@@ -1,0 +1,120 @@
+>>>>>>>>>>>>>>>>>>>>>>>>>> why i required two use refs here ??
+
+import { useRef, useEffect } from 'react';
+import CanvasEditor from 'path/to/CanvasEditor'; // Adjust the import according to your file structure
+
+const YourComponent = ({ caption, cta, bgColor, uploadedImage, templateData }) => {
+  const canvasRef = useRef(null);  // Ref for the canvas DOM element
+  const canvasEditorRef = useRef(null);  // Ref for the CanvasEditor instance
+
+  // Effect to initialize CanvasEditor when templateData changes
+  useEffect(() => {
+    const canvas = canvasRef.current;  // Get the canvas element
+    canvasEditorRef.current = new CanvasEditor(canvas, templateData);  // Create a new CanvasEditor instance
+  }, [templateData]);  // Runs only when templateData changes
+
+  // Effect to update the canvas when caption, cta, bgColor, or uploadedImage changes
+  useEffect(() => {
+    if (canvasEditorRef.current) {
+      canvasEditorRef.current.draw(caption, cta, bgColor, uploadedImage);  // Update the canvas
+    }
+  }, [caption, cta, bgColor, uploadedImage]);  // Runs when any of these dependencies change
+
+  return <canvas ref={canvasRef}></canvas>;  // Attach canvasRef to the canvas element
+};
+
+export default YourComponent;
+
+
+---------------------------------Reason : 
+
+Using a single ref could lead to complications and less clear separation of concerns. Here’s a detailed explanation of why using two refs is more effective in this context:
+
+### Reasons for Using Two Refs
+
+1. **Separation of Responsibilities**:
+   - **`canvasRef`**: This ref is specifically for the DOM element. It is a reference to the actual `<canvas>` element in the DOM, which is necessary for any direct manipulations or for passing to another object that will manipulate it.
+   - **`canvasEditorRef`**: This ref is for the instance of the `CanvasEditor`. This object encapsulates the logic for drawing on the canvas. It maintains its own state and methods, separate from the DOM itself.
+
+2. **Lifecycle Management**:
+   - **Initialization**: The `canvasRef` needs to point to the canvas element before you can create the `CanvasEditor`. This is because `CanvasEditor` likely needs a reference to the canvas element during its initialization.
+   - **Updates**: The `CanvasEditor` instance (`canvasEditorRef`) needs to persist across renders to avoid unnecessary re-initialization and to maintain state. Using a separate ref for the `CanvasEditor` ensures that it can be updated with new data without being re-created unless necessary.
+
+3. **Clarity and Maintainability**:
+   - Having two refs makes it clear what each one is responsible for. This separation can make the code easier to understand and maintain.
+   - If you were to use a single ref, you would have to handle the differentiation within your code, adding complexity and potential for bugs.
+
+### Potential Problems with a Single Ref
+
+If you attempt to use a single ref for both purposes, it would look something like this:
+
+```javascript
+import { useRef, useEffect } from 'react';
+import CanvasEditor from 'path/to/CanvasEditor';
+
+const YourComponent = ({ caption, cta, bgColor, uploadedImage, templateData }) => {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current instanceof HTMLCanvasElement) {
+      ref.current = new CanvasEditor(ref.current, templateData);
+    }
+  }, [templateData]);
+
+  useEffect(() => {
+    if (ref.current instanceof CanvasEditor) {
+      ref.current.draw(caption, cta, bgColor, uploadedImage);
+    }
+  }, [caption, cta, bgColor, uploadedImage]);
+
+  return <canvas ref={ref}></canvas>;
+};
+
+export default YourComponent;
+```
+
+### Issues with Single Ref
+
+1. **Type Checking**:
+   - You have to perform type checks (`instanceof HTMLCanvasElement` and `instanceof CanvasEditor`) to determine the current state of the ref. This adds complexity and potential for errors.
+   
+************* 2. **State Transition**:
+   - Initially, `ref.current` is a DOM element. After initializing `CanvasEditor`, it transitions to a `CanvasEditor` instance. This dual role can cause confusion and make the lifecycle management more complex.
+
+3. **Initialization Race Conditions**:
+   - The initialization of `CanvasEditor` depends on the DOM element being available. If the ref transitions from a DOM element to a `CanvasEditor` instance in the same render phase, it might introduce race conditions or unexpected behavior during the component lifecycle.
+
+### Conclusion
+
+Using two refs (`canvasRef` for the DOM element and `canvasEditorRef` for the `CanvasEditor` instance) is a cleaner, more maintainable approach. It ensures clear separation of responsibilities, simplifies lifecycle management, and avoids the pitfalls of type checking and state transitions within a single ref.
+
+### Correct Implementation
+
+```javascript
+import { useRef, useEffect } from 'react';
+import CanvasEditor from 'path/to/CanvasEditor'; // Adjust the import according to your file structure
+
+const YourComponent = ({ caption, cta, bgColor, uploadedImage, templateData }) => {
+  const canvasRef = useRef(null);  // Ref for the canvas DOM element
+  const canvasEditorRef = useRef(null);  // Ref for the CanvasEditor instance
+
+  // Effect to initialize CanvasEditor when templateData changes
+  useEffect(() => {
+    const canvas = canvasRef.current;  // Get the canvas element
+    canvasEditorRef.current = new CanvasEditor(canvas, templateData);  // Create a new CanvasEditor instance
+  }, [templateData]);  // Runs only when templateData changes
+
+  // Effect to update the canvas when caption, cta, bgColor, or uploadedImage changes
+  useEffect(() => {
+    if (canvasEditorRef.current) {
+      canvasEditorRef.current.draw(caption, cta, bgColor, uploadedImage);  // Update the canvas
+    }
+  }, [caption, cta, bgColor, uploadedImage]);  // Runs when any of these dependencies change
+
+  return <canvas ref={canvasRef}></canvas>;  // Attach canvasRef to the canvas element
+};
+
+export default YourComponent;
+```
+
+This approach ensures each ref has a single responsibility, making the component more predictable and easier to maintain.
